@@ -9,44 +9,37 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors({
   origin: ['http://localhost:3000', 'https://interview-simulator-ochre.vercel.app'],
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST', 'OPTIONS'],
   credentials: true
 }));
 app.use(express.json());
 
-// Multer for file uploads (memory storage)
 const upload = multer({ storage: multer.memoryStorage() });
 
-// --- ROUTE 1: Health check ---
 app.get('/', (req, res) => {
   res.json({ message: 'Interview Simulator API is running!' });
 });
-// ADD after the health check route
+
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Frontend and Backend are connected!' });
 });
 
-// --- ROUTE 2: Resume parsing ---
 app.post('/api/parse-resume', upload.single('resume'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
-    // Extract text from PDF
-   const pdfLib = require('pdf-parse');
-const fn = pdfLib.default || pdfLib;
-const pdfData = await fn(req.file.buffer);
-    const text = pdfData.text.substring(0, 3000);
+    // Extract readable text from PDF buffer without pdf-parse
+    const text = req.file.buffer.toString('latin1')
+      .replace(/[^\x20-\x7E\n\r]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .substring(0, 3000);
 
-    // Send to Groq AI for parsing
     const response = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
       {
         model: 'llama-3.1-8b-instant',
         messages: [
-          {
-            role: 'system',
-            content: 'You are a resume parser. Return only JSON, no markdown.'
-          },
+          { role: 'system', content: 'You are a resume parser. Return only JSON, no markdown.' },
           {
             role: 'user',
             content: `Extract from this resume and return ONLY JSON:
@@ -82,7 +75,6 @@ const pdfData = await fn(req.file.buffer);
   }
 });
 
-// --- ROUTE 3: AI Evaluation ---
 app.post('/api/evaluate', async (req, res) => {
   try {
     const { question, answer, role, language, resumeContext } = req.body;
@@ -92,10 +84,7 @@ app.post('/api/evaluate', async (req, res) => {
       {
         model: 'llama-3.1-8b-instant',
         messages: [
-          {
-            role: 'system',
-            content: 'You are an expert HR and Technical Interviewer. Return only JSON.'
-          },
+          { role: 'system', content: 'You are an expert HR and Technical Interviewer. Return only JSON.' },
           {
             role: 'user',
             content: `Evaluate this interview answer:
@@ -127,12 +116,10 @@ app.post('/api/evaluate', async (req, res) => {
   }
 });
 
-// --- ROUTE 4: Save Score ---
 app.post('/api/save-score', async (req, res) => {
   try {
     const { userId, score } = req.body;
     if (!userId) return res.status(400).json({ error: 'userId required' });
-    // Score is saved via Firebase on frontend, this just logs it
     console.log(`Score saved for user ${userId}: ${score}`);
     res.json({ success: true, message: 'Score recorded' });
   } catch (err) {
