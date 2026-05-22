@@ -14,7 +14,7 @@ export const ThemeContext = React.createContext();
 
 // --- 1. CONFIGURATION ---
 const GROQ_API_KEY = process.env.REACT_APP_GROQ_API_KEY;
-const saveUserData = async (uid, data) => {
+const saveUserData = async (uid, data) => { 
   try {
     await setDoc(doc(db, "users", uid), data, { merge: true });
   } catch (e) {
@@ -34,7 +34,7 @@ const loadUserData = async (uid) => {
 
 const getAIResponse = async (prompt) => {
   try {
-    const res = await fetch("http://localhost:5000/api/evaluate", {
+    const res = await fetch("https://interview-simulator-uwtl.onrender.com/api/evaluate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -58,7 +58,7 @@ const parseResume = async (file) => {
     const formData = new FormData();
     formData.append('resume', file);
 
-    const res = await fetch("http://localhost:5000/api/parse-resume", {
+    const res = await fetch("https://interview-simulator-uwtl.onrender.com/api/parse-resume", {
       method: "POST",
       body: formData
     });
