@@ -1,8 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
-const pdf = require('pdf-parse');
-const pdfParse = (buffer) => pdf(buffer);
 const axios = require('axios');
 require('dotenv').config();
 
@@ -34,7 +32,9 @@ app.post('/api/parse-resume', upload.single('resume'), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
     // Extract text from PDF
-    const pdfData = await pdfParse(req.file.buffer);
+   const pdfLib = require('pdf-parse');
+const fn = pdfLib.default || pdfLib;
+const pdfData = await fn(req.file.buffer);
     const text = pdfData.text.substring(0, 3000);
 
     // Send to Groq AI for parsing
