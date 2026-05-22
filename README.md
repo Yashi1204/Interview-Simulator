@@ -4,6 +4,9 @@ A full-stack, AI-powered interview preparation platform built with **React 19**,
 
 > Built to demonstrate full-stack development, LLM API integration, resume parsing, Firebase Auth + Firestore, speech recognition, and performance analytics.
 
+🌐 **Live Demo:** [interview-simulator-ochre.vercel.app](https://interview-simulator-ochre.vercel.app)
+⚙️ **Backend API:** [interview-simulator-uwtl.onrender.com](https://interview-simulator-uwtl.onrender.com)
+
 ---
 
 ## 🌐 Live Features
@@ -33,9 +36,10 @@ A full-stack, AI-powered interview preparation platform built with **React 19**,
 | Auth & Database | Firebase 12 (Auth + Firestore) |
 | Backend | Node.js, Express 5 |
 | AI / LLM | Groq API — LLaMA 3.1 8B Instant |
-| Resume Parsing | pdf-parse + Multer (memory storage) |
+| Resume Parsing | Multer (memory storage) + raw buffer extraction |
 | Speech Input | Web Speech API (browser-native) |
 | HTTP | Axios (backend → Groq), Fetch API (frontend → backend) |
+| Deployment | Vercel (frontend) + Render (backend) |
 | Config | dotenv, CORS |
 
 ---
@@ -74,7 +78,7 @@ A full-stack, AI-powered interview preparation platform built with **React 19**,
 ### 1. Clone the repo
 ```bash
 git clone https://github.com/Yashi1204/interview-simulator.git
-cd ai-interview-simulator
+cd interview-simulator
 ```
 
 ---
@@ -108,6 +112,7 @@ npm install
 Create `.env` in `/frontend`:
 ```env
 REACT_APP_GROQ_API_KEY=your_groq_api_key
+REACT_APP_BACKEND_URL=http://localhost:5000
 
 REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
 REACT_APP_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
@@ -128,7 +133,7 @@ App runs at `http://localhost:3000` — backend at `http://localhost:5000`.
 ## 🔑 Key Technical Highlights
 
 ### Resume-Personalized Interview Flow
-When a user uploads their PDF resume, the backend extracts raw text via `pdf-parse` and sends it to Groq LLM with a structured prompt. The model returns a clean JSON object — name, role, skills, languages, projects, education — which is stored in Firestore and localStorage. From that point, the coding round auto-selects the candidate's primary language, and the personalized round generates questions that directly reference their actual projects and experience.
+When a user uploads their PDF resume, the backend extracts raw text from the buffer and sends it to Groq LLM with a structured prompt. The model returns a clean JSON object — name, role, skills, languages, projects, education — which is stored in Firestore and localStorage. From that point, the coding round auto-selects the candidate's primary language, and the personalized round generates questions that directly reference their actual projects and experience.
 
 ### Groq LLM for Evaluation
 Every submitted answer is sent to the backend `/api/evaluate` endpoint, which forwards it to Groq (LLaMA 3.1 8B Instant) with the question, role, language, and resume context. The model returns a JSON object with three scores — clarity, relevance, and depth (each out of 10) — plus a written feedback string and a model answer. The frontend parses this and renders it inline with animated score cards.
@@ -153,11 +158,11 @@ Dark mode applies inline style overrides across all DOM elements by inspecting c
 ## 🗂️ Project Structure
 
 ```
-ai-interview-simulator/
+interview-simulator/
 ├── backend/
 │   ├── server.js               # Express server — resume parse, evaluate, save-score routes
 │   ├── .env                    # GROQ_API_KEY, PORT
-│   └── package.json            # express, cors, multer, pdf-parse, axios, dotenv
+│   └── package.json            # express, cors, multer, axios, dotenv
 │
 ├── frontend/
 │   ├── public/
@@ -168,6 +173,8 @@ ai-interview-simulator/
 │       └── index.css           # Global styles
 │   ├── .env                    # Firebase config + REACT_APP_GROQ_API_KEY
 │   └── package.json            # React, Firebase, Recharts, Lucide, Tailwind
+│
+└── README.md
 ```
 
 ---
@@ -182,6 +189,7 @@ ai-interview-simulator/
 - Building a countdown timer that locks input, triggers partial submission, and integrates with the AI evaluation flow
 - Applying dark mode globally using a MutationObserver to re-theme dynamically rendered React Router pages
 - Generating a downloadable assessment report as a styled HTML page with browser print — no PDF library needed
+- Deploying a full-stack app with Vercel (frontend) + Render (backend) and resolving real-world CORS and dependency issues
 
 ---
 
