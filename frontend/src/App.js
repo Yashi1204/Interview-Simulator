@@ -1562,8 +1562,23 @@ const AuthPage = ({ onLogin }) => {
             <p className="text-slate-400 text-sm mb-8">
               {isLogin ? 'Sign in to continue your interview prep.' : 'Create an account to track your progress.'}
             </p>
+             
+             <div className="space-y-4">
 
-            <div className="space-y-4">
+              {/* DEMO CREDENTIALS BOX */}
+              {isLogin && (
+                <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-2">
+                  <p className="text-[10px] font-black text-[#1e6091] uppercase tracking-widest mb-3">Demo Credentials</p>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, email: 'demo@interview.com', password: 'Demo@1234' })}
+                    className="w-full py-2.5 px-4 bg-white border border-blue-200 rounded-xl text-xs font-bold text-[#1e6091] hover:bg-blue-100 transition-all"
+                  >
+                    👤 Login as Demo User
+                  </button>
+                </div>
+              )}
+
               {!isLogin && (
                 <div>
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Full Name</label>
