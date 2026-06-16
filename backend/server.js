@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const axios = require('axios');
-const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js');
+const pdf = require('pdf-parse');
 require('dotenv').config();
 
 const app = express();
@@ -29,19 +29,8 @@ app.post('/api/parse-resume', upload.single('resume'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
-    // Extract text using pdfjs-dist
-    const uint8Array = new Uint8Array(req.file.buffer);
-    const loadingTask = pdfjsLib.getDocument({ data: uint8Array });
-    const pdf = await loadingTask.promise;
-
-    let fullText = '';
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      fullText += content.items.map(item => item.str).join(' ') + ' ';
-    }
-
-    const text = fullText.replace(/\s+/g, ' ').trim().substring(0, 3000);
+    const data = await pdf(req.file.buffer);
+    const text = data.text.replace(/\s+/g, ' ').trim().substring(0, 3000);
 
     if (!text || text.length < 20) {
       return res.status(400).json({ error: 'Could not extract readable text from this PDF. Please upload a text-based PDF resume (not a scanned image).' });

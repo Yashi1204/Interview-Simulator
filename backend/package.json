@@ -17,6 +17,6 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "multer": "^2.1.1",
-    "pdfjs-dist": "^6.0.227"
+    "pdf-parse": "^1.1.1"
   }
 }
