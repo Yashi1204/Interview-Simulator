@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const axios = require('axios');
+const pdfParse = require('pdf-parse');
 require('dotenv').config();
 
 const app = express();
@@ -28,10 +29,15 @@ app.post('/api/parse-resume', upload.single('resume'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
-    const text = req.file.buffer.toString('latin1')
-      .replace(/[^\x20-\x7E\n\r]/g, ' ')
+    const pdfData = await pdfParse(req.file.buffer);
+    const text = pdfData.text
       .replace(/\s+/g, ' ')
+      .trim()
       .substring(0, 3000);
+
+    if (!text || text.length < 20) {
+      return res.status(400).json({ error: 'Could not extract readable text from this PDF. Please upload a text-based PDF resume (not a scanned image).' });
+    }
 
     const response = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
