@@ -28,7 +28,6 @@ app.post('/api/parse-resume', upload.single('resume'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
-    // Extract readable text from PDF buffer without pdf-parse
     const text = req.file.buffer.toString('latin1')
       .replace(/[^\x20-\x7E\n\r]/g, ' ')
       .replace(/\s+/g, ' ')
@@ -38,21 +37,31 @@ app.post('/api/parse-resume', upload.single('resume'), async (req, res) => {
       'https://api.groq.com/openai/v1/chat/completions',
       {
         model: 'llama-3.1-8b-instant',
+        temperature: 0,
         messages: [
-          { role: 'system', content: 'You are a resume parser. Return only JSON, no markdown.' },
+          {
+            role: 'system',
+            content: 'You are a resume parser. You will be given raw resume text. Extract ONLY the real information present in that text. Never invent, guess, or use example/placeholder values. Respond with raw JSON only — no markdown, no code fences, no explanation.'
+          },
           {
             role: 'user',
-            content: `Extract from this resume and return ONLY JSON:
-            {
-              "name": "candidate name",
-              "role": "most recent job title",
-              "skills": ["skill1", "skill2"],
-              "languages": ["Python" or "Java" or "C++"],
-              "experience": ["one line summary of each job"],
-              "projects": ["project name: one line description"],
-              "education": "degree and institution"
-            }
-            Resume: ${text}`
+            content: `Resume text (this is the ONLY source of truth — extract real values from it, do not invent anything):
+"""
+${text}
+"""
+
+Return a JSON object with exactly these keys, populated only from the resume text above:
+{
+  "name": string,
+  "role": string,
+  "skills": string[],
+  "languages": string[],
+  "experience": string[],
+  "projects": string[],
+  "education": string
+}
+
+If a field genuinely cannot be found in the text, use an empty string or empty array for it — never substitute an example.`
           }
         ]
       },
@@ -66,7 +75,21 @@ app.post('/api/parse-resume', upload.single('resume'), async (req, res) => {
 
     const content = response.data.choices[0].message.content;
     const cleaned = content.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(cleaned.match(/\{[\s\S]*\}/)[0]);
+    const match = cleaned.match(/\{[\s\S]*\}/);
+
+    if (!match) {
+      console.error('Resume parse error: No JSON object found in Groq response:', content);
+      return res.status(502).json({ error: 'Resume parsing failed — could not extract structured data. Please try again.' });
+    }
+
+    let parsed;
+    try {
+      parsed = JSON.parse(match[0]);
+    } catch (parseErr) {
+      console.error('Resume parse error: Invalid JSON from Groq:', match[0]);
+      return res.status(502).json({ error: 'Resume parsing failed — invalid response format. Please try again.' });
+    }
+
     res.json({ success: true, data: parsed });
 
   } catch (err) {
