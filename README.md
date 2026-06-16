@@ -44,6 +44,27 @@ A full-stack, AI-powered interview preparation platform built with **React 19**,
 
 ---
 
+## 📸 Screenshots
+
+### Login
+![Login](screenshots/Login.png)
+
+### Resume Upload
+![Resume Upload](screenshots/ResumeUpload.png)
+
+### Personalised Round
+![Personalised Round](screenshots/PersonalisedRound.png)
+
+### Coding Round
+![Coding Round](screenshots/CodingRound.png)
+
+### Performance Dashboard
+![Performance Dashboard](screenshots/PerformanceDashboard.png)
+
+### Readiness Report
+![Readiness Report](screenshots/ReadinessReport.png)
+---
+
 ## 🗺️ App Routes
 
 | Route | Page | Description |
@@ -152,30 +173,6 @@ The readiness report computes warm-up accuracy, matched resume skills against a 
 
 ### Dark Mode via DOM Mutation Observer
 Dark mode applies inline style overrides across all DOM elements by inspecting computed background and text colors. A `MutationObserver` on `document.body` reapplies the theme on every page navigation, ensuring consistent styling across React Router route changes without a full CSS-variable system.
-
----
-
-## 🗂️ Project Structure
-
-```
-interview-simulator/
-├── backend/
-│   ├── server.js               # Express server — resume parse, evaluate, save-score routes
-│   ├── .env                    # GROQ_API_KEY, PORT
-│   └── package.json            # express, cors, multer, axios, dotenv
-│
-├── frontend/
-│   ├── public/
-│   └── src/
-│       ├── App.js              # All components, routing, ThemeContext, auth logic
-│       ├── firebase.js         # Firebase init — auth, db, googleProvider
-│       ├── index.js            # React entry point
-│       └── index.css           # Global styles
-│   ├── .env                    # Firebase config + REACT_APP_GROQ_API_KEY
-│   └── package.json            # React, Firebase, Recharts, Lucide, Tailwind
-│
-└── README.md
-```
 
 ---
 
