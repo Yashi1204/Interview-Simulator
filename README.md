@@ -1,5 +1,8 @@
 # 🤖 Interview Simulator
 
+> ⏸️ **Live demo is temporarily paused** (free hosting limit reached, resumes Nov 1). Screenshots and setup instructions are below.
+> 
+
 A full-stack, AI-powered interview preparation platform built with **React 19**, **Node.js**, **Express**, **Firebase**, and **Groq LLM**. Upload your resume, pick your role, answer AI-generated questions via text or voice, get scored in real time, and download a professional readiness report.
 
 > Built to demonstrate full-stack development, LLM API integration, resume parsing, Firebase Auth + Firestore, speech recognition, and performance analytics.
